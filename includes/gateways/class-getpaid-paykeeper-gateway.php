@@ -2,12 +2,12 @@
 
 defined('ABSPATH') || exit;
 
-abstract class GetPaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
+abstract class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
 
     private $paykeeper_login = "demo";
     private $paykeeper_password = "demo";
-    private $secret_word = "KaraKarPal";
-    private $token = '';
+    private $paykeeper_secret_word = "KaraKarPal";
+    private $paykeeper_token = '';
 
     /**
      * Constructor
@@ -19,29 +19,12 @@ abstract class GetPaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
         $this->title        = __( 'PayKeeper', 'my-domain' ); // Frontend name
         $this->method_title = __( 'PayKeeper Gateway', 'my-domain' ); // Admin name
         $this->description  = __( 'Pay using my PayKeeper payment gateway', 'my-domain' );
-        
-        
-        $this->sandbox_invoice_url = "";
-        $this->production_invoice_url = "";
+    
 
-
-        
-        // Add support features
-        $this->supports     = array( 'sandbox', 'tokens', 'addons' );
-        
-
-		$this->enabled = wpinv_is_gateway_active( $this->id );
+	//	$this->enabled = wpinv_is_gateway_active( $this->id );
         parent::__construct();
 
-        //if ($this->enabled){
-            //code run if this gateway is enabled
-
-            //$this->paykeeper_login =  wpinv_get_option("paykeeper_login");
-            //$this->paykeeper_password = wpinv_get_option("paykeeper_password");
-        //}
-
-
-      }
+    }
 
 
     /**
@@ -59,17 +42,16 @@ abstract class GetPaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
         $posted  = wp_unslash( $_POST );
         
         if (empty($posted['clientid'])){$posted['clientid']="";}
+    
         // проверяем подпись и целостность запроса
-        
-	if ($posted["key"] != md5(
-            $posted["id"].$posted["sum"].$posted['clientid'].$posted["orderid"].$this->secret_world
+    
+    	if ($posted["key"] != md5(
+            $posted["id"].$posted["sum"].$posted['clientid'].$posted["orderid"].$this->paykeeper_secret_word
         )) {
             wp_die( 'Gateway IPN Request Invalid hash', 500 );
         }
         // ищем инвойс по orderid
- 
-
-        $invoice = $this->get_ipn_invoice( $posted );
+        $invoice = $this->get_ipn_invoice( $posted['orderid'] );
 
         if (empty($invoice)){
             wpinv_error_log( 'Aborting, Invoice was not found', false );
@@ -83,7 +65,7 @@ abstract class GetPaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
         }
 
 
-        //проверяем совпадение данныых инвойса с данными из _POST
+        //проверяем совпадение данных о инвойса с данными из _POST
         if ( number_format( $invoice->get_total(), 2, '.', '' ) !== number_format( $posted["sum"], 2, '.', '' ) ) {
 			/* translators: %s: Amount. */
 			wpinv_error_log( "Amounts do not match: {$posted['sum']} instead of {$invoice->get_total()}", 'IPN Error', false );
@@ -113,22 +95,21 @@ abstract class GetPaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
 	 * @param array $posted
 	 * @return WPInv_Invoice
 	 */
-	protected function get_ipn_invoice( $posted ) {
+	protected function get_ipn_invoice( $invoice_id) {
 
 		wpinv_error_log( 'Retrieving PayKeeper IPN Response Invoice', false );
 
-		if ( ! empty( $posted['orderid'] ) ) {
-			$invoice = new WPInv_Invoice( $posted['orderid'] );
+		
+		$invoice = new WPInv_Invoice($invoice_id);
 
-			if ( $invoice->exists() ) {
-				wpinv_error_log( 'Found invoice #' . $invoice->get_number(), false );
-				return $invoice;
-			}
+		if ( $invoice->exists() ) {
+			wpinv_error_log( 'Found invoice #' . $invoice->get_number(), false );
+			return $invoice;
 		}
-
+	    
 		wpinv_error_log( 'Could not retrieve the associated invoice.', false );
 		wp_die( 'Could not retrieve the associated invoice.', 200 );
-
+    
 	}
 
 
