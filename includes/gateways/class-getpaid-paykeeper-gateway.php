@@ -84,7 +84,7 @@ abstract class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
         // пишем ответ Пайкиперу
        
 	
-	 echo "OK ".md5($posted["id"].$this->secret_word);
+	 echo "OK ".md5($posted["id"].$this->secret_word);die()
 
 
     }
@@ -113,8 +113,46 @@ abstract class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
 	}
 
 
+/**
+       * Process Payment
+       */
+      public function process_payment( $invoice, $submission_data, $submission ) {
 
+        // Get redirect url.
+        $paykeeper_redirect = $this->get_request_url( $invoice );
 
+        // Add a note about the request url.
+        $invoice->add_note(
+            sprintf(
+                __( 'Redirecting to PayKeeper: %s', 'invoicing' ),
+                esc_url( $paykeeper_redirect )
+            ),
+            false,
+            false,
+            true
+        );
+        // set invoce waiting status
+        $invoice->set_status( 'wpi-onhold' );
+        // Add note.
+        $invoice->add_note( __( 'Mark invoice status on hold'), false, false, true );
+        // ... then save it...
+        $invoice->save();
+        
+
+        // Redirect to PayKeeper
+        wp_redirect( $paykeeper_redirect );
+        exit;
+    }
+
+  /**
+     * Get the PayKeeper request URL for an invoice.
+     *
+     * @param  WPInv_Invoice $invoice Invoice object.
+     * @return string
+     */
+    public function get_request_url( $invoice ) {
+        return "https://hotelstore.ae"
+    }
 
 
 
