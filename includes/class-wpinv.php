@@ -325,7 +325,6 @@ class WPInv_Plugin {
 				'worldpay'      => 'GetPaid_Worldpay_Gateway',
 				'bank_transfer' => 'GetPaid_Bank_Transfer_Gateway',
 				'authorizenet'  => 'GetPaid_Authorize_Net_Gateway',
-				'patkeeper'		=> 'GetPaid_PayKeeper_Gateway',
 			)
 		);
 

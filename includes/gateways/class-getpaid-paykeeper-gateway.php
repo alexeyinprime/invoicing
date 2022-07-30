@@ -6,7 +6,7 @@ abstract class GetPaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
 
     private $paykeeper_login = "demo";
     private $paykeeper_password = "demo";
-    private $secret_word = "KaraKarPal"
+    private $secret_word = "KaraKarPal";
     private $token = '';
 
     /**
@@ -31,14 +31,14 @@ abstract class GetPaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
         
 
 		$this->enabled = wpinv_is_gateway_active( $this->id );
-        parent::__construct()
+        parent::__construct();
 
-        if ($this->enabled){
+        //if ($this->enabled){
             //code run if this gateway is enabled
 
             //$this->paykeeper_login =  wpinv_get_option("paykeeper_login");
             //$this->paykeeper_password = wpinv_get_option("paykeeper_password");
-        }
+        //}
 
 
       }
@@ -52,16 +52,17 @@ abstract class GetPaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
 	 */
 	public function verify_ipn() {
         // проверяем наличие необходимых данных в массиве $_POST
-		if ( empty( $_POST ) || empty($_POST["id"],$_POST["sum"], $_POST["orderid"],$_POST["key"]))) {
-			wp_die( 'Gateway IPN Request Failure', 500 );
+		if ( empty( $_POST ) || empty( $_POST["id"]) || empty( $_POST["sum"]) || empty( $_POST["orderid"]) || empty($_POST["key"]) ) {
+			wp_die( "Gateway IPN Request Failure", 500 );
 		}
         
         $posted  = wp_unslash( $_POST );
         
         if (empty($posted['clientid'])){$posted['clientid']="";}
         // проверяем подпись и целостность запроса
-        if ($posted["key"] != md5(
-            $posted["id"].$posted["sum"].$posted['clientid'].$posted["orderid"].$this->secret_world;
+        
+	if ($posted["key"] != md5(
+            $posted["id"].$posted["sum"].$posted['clientid'].$posted["orderid"].$this->secret_world
         )) {
             wp_die( 'Gateway IPN Request Invalid hash', 500 );
         }
@@ -88,7 +89,7 @@ abstract class GetPaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
 			wpinv_error_log( "Amounts do not match: {$posted['sum']} instead of {$invoice->get_total()}", 'IPN Error', false );
             wpinv_error_log( $posted["sum"], 'Validated IPN Amount', false );
             wp_die( 'Invoice not paid via PayKeeper', 500 );
-		}
+	}
 
         if ( $invoice->is_paid() || $invoice->is_refunded() ) {
             // инвойс уже оплачен или возвращен
@@ -99,7 +100,9 @@ abstract class GetPaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
         $invoice->mark_paid();
         wpinv_error_log( 'Wow, Invoice {$invoice->id}  was paid successfully', false );
         // пишем ответ Пайкиперу
-        echo "OK ".md5($posted["id"].$this->secret_word)
+       
+	
+	 echo "OK ".md5($posted["id"].$this->secret_word);
 
 
     }
