@@ -20,7 +20,7 @@ class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
    //     $this->method_title = __( 'PayKeeper Gateway'); // Admin name
    //     $this->description  = __( 'Pay using my PayKeeper payment gateway');
     
-
+        $this->paykeeper_secret_word = wpinv_get_option("paykeeper_success_url");
 	//	$this->enabled = wpinv_is_gateway_active( $this->id );
         parent::__construct();
 
@@ -151,7 +151,33 @@ class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
      * @return string
      */
     public function get_request_url( $invoice ) {
-        return "https://hotelstore.ae";
+        return wpinv_get_option("paykeeper_success_url");
     }
+
+ /**
+	 * Filters the gateway settings.
+	 *
+	 * @param array $admin_settings
+	 */
+	public function admin_settings( $admin_settings ) {
+
+        $admin_settings['paykeeper_secret_word'] = array(
+            'type' => 'text',
+            'id'   => 'paykeeper_secret_word',
+            'name' => __( 'PayKeeper Secert Word', 'invoicing' ),
+            'desc' => __( 'Optionally enter your secret word here', 'invoicing' ),
+        );
+        $admin_settings['paykeeper_success_url'] = array(
+            'type' => 'text',
+            'id'   => 'paykeeper_success_url',
+            'name' => __( 'PayKeeper Success Url', 'invoicing' ),
+            'desc' => __( 'Optionally enter your succes url here', 'invoicing' ),
+        );
+
+
+        return $admin_settings;
+    }
+
+
 
 }
