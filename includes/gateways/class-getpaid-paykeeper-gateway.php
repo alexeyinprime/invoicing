@@ -4,6 +4,8 @@ defined('ABSPATH') || exit;
 
 abstract class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
 
+    public $id = "paykeeper"
+
     private $paykeeper_login = "demo";
     private $paykeeper_password = "demo";
     private $paykeeper_secret_word = "KaraKarPal";
@@ -15,10 +17,10 @@ abstract class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
 
      public function __construct(){
         //Init
-        $this->id           = 'paykeeper';
-        $this->title        = __( 'PayKeeper', 'my-domain' ); // Frontend name
-        $this->method_title = __( 'PayKeeper Gateway', 'my-domain' ); // Admin name
-        $this->description  = __( 'Pay using my PayKeeper payment gateway', 'my-domain' );
+
+        $this->title        = __( 'PayKeeper')// Frontend name
+        $this->method_title = __( 'PayKeeper Gateway'); // Admin name
+        $this->description  = __( 'Pay using my PayKeeper payment gateway');
     
 
 	//	$this->enabled = wpinv_is_gateway_active( $this->id );
@@ -84,7 +86,7 @@ abstract class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
         // пишем ответ Пайкиперу
        
 	
-	 echo "OK ".md5($posted["id"].$this->secret_word);die()
+	 echo "OK ".md5($posted["id"].$this->secret_word);die();
 
 
     }
@@ -151,7 +153,7 @@ abstract class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
      * @return string
      */
     public function get_request_url( $invoice ) {
-        return "https://hotelstore.ae"
+        return "https://hotelstore.ae";
     }
 
 
