@@ -2,25 +2,23 @@
 
 defined('ABSPATH') || exit;
 
-abstract class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
-
-    public $id = "paykeeper"
+class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
 
     private $paykeeper_login = "demo";
     private $paykeeper_password = "demo";
     private $paykeeper_secret_word = "KaraKarPal";
     private $paykeeper_token = '';
-
+    public $id = "paykeeper";
     /**
      * Constructor
      */
 
      public function __construct(){
         //Init
-
-        $this->title        = __( 'PayKeeper')// Frontend name
-        $this->method_title = __( 'PayKeeper Gateway'); // Admin name
-        $this->description  = __( 'Pay using my PayKeeper payment gateway');
+    //    $this->id           = 'paykeeper';
+   //     $this->title        = __( 'PayKeeper'); // Frontend name
+   //     $this->method_title = __( 'PayKeeper Gateway'); // Admin name
+   //     $this->description  = __( 'Pay using my PayKeeper payment gateway');
     
 
 	//	$this->enabled = wpinv_is_gateway_active( $this->id );
@@ -133,10 +131,10 @@ abstract class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
             false,
             true
         );
-        // set invoce waiting status
-        $invoice->set_status( 'wpi-onhold' );
+        // set invoce processing status
+        $invoice->set_status( 'wpi-processing' );
         // Add note.
-        $invoice->add_note( __( 'Mark invoice status on hold'), false, false, true );
+        $invoice->add_note( __( 'Mark invoice status on processing'), false, false, true );
         // ... then save it...
         $invoice->save();
         
@@ -156,7 +154,4 @@ abstract class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
         return "https://hotelstore.ae";
     }
 
-
-
-      
 }
