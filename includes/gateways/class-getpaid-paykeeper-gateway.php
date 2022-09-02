@@ -75,18 +75,14 @@ class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
 
         if ( $invoice->is_paid() || $invoice->is_refunded() ) {
             // инвойс уже оплачен или возвращен
-            wpinv_error_log( 'Aborting, Invoice was paid or refunded', false );
+            wpinv_error_log( 'Aborting, Invoice was paid or refunded early', false );
         }
 
         // меняем статус инвойса на УПЛОЧЕНО
         $invoice->mark_paid();
         wpinv_error_log( 'Wow, Invoice {$invoice->id}  was paid successfully', false );
         // пишем ответ Пайкиперу
-       
-	
-	 echo "OK ".md5($posted["id"].$this->secret_word);die();
-
-
+        wp_die("OK ".md5($posted["id"].$this->paykeeper_secret_word), 200);
     }
 
    /**
@@ -179,5 +175,45 @@ class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
     }
 
 
+    /**
+     * Функция для получения токена от Paykeeper
+     * @return string
+     */
+    protected function get_transaction_token(){
+        // если токен уже был ранее запрошен в хоте текущей операции, то используем его
+        // @todo возможно этот токен вообще не меняется (надо проверить), тогда его можно хранить в настройках плагина
+        if (!empty($this->paykeeper_token)){
+            return $this->paykeeper_token;
+        }
+        $headers = [];
+        array_push($headers,'Content-Type: application/x-www-form-urlencoded');      
+        array_push($headers,'Authorization: Basic '.$base64_encode("{$this->paykeeper_login}:{$this->paykeeper_password}")); 
+
+
+        $curl = curl_init();
+        curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+        curl_setopt($curl,CURLOPT_URL,'https://demo.paykeeper.ru/info/settings/token/');
+        curl_setopt($curl,CURLOPT_CUSTOMREQUEST,'GET');
+        curl_setopt($curl,CURLOPT_HTTPHEADER,$headers);
+        curl_setopt($curl,CURLOPT_HEADER,false);
+ 
+        /**
+         *  Инициируем запрос к API
+         * предполагается, что в случае успеха сервер Paykeeper возвращает нам JSON 
+         * с заполненной переменной tokem
+        */
+        $response=curl_exec($curl);                       
+        $php_array=json_decode($response,true);
+ 
+        # В ответе должно быть заполнено поле token, иначе - ошибка
+        if (isset($php_array['token'])){
+                $this->paykeeper_token = $php_array['token'];
+                return $this->paykeeper_token;
+            } else {
+                wpinv_error_log( 'Could not retrieve the paykeeper tocken.', false );
+                wp_die( 'Could not retrieve the token from PayKeeper.', 200 );
+            }
+
+    }
 
 }
