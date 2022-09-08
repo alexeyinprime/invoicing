@@ -8,6 +8,7 @@ class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
     private $paykeeper_password = "demo";
     private $paykeeper_secret_word = "KaraKarPal";
     private $paykeeper_token = '';
+    private $paykeeper_token_url = 'https://demo.paykeeper.ru/info/settings/token/';
     public $id = "paykeeper";
     /**
      * Constructor
@@ -20,7 +21,7 @@ class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
    //     $this->method_title = __( 'PayKeeper Gateway'); // Admin name
    //     $this->description  = __( 'Pay using my PayKeeper payment gateway');
     
-        $this->paykeeper_secret_word = wpinv_get_option("paykeeper_success_url");
+        $this->paykeeper_secret_word = wpinv_get_option("paykeeper_secret_word");
 	//	$this->enabled = wpinv_is_gateway_active( $this->id );
         parent::__construct();
 
@@ -192,7 +193,7 @@ class Getpaid_PayKeeper_Gateway extends GetPaid_Payment_Gateway{
 
         $curl = curl_init();
         curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
-        curl_setopt($curl,CURLOPT_URL,'https://demo.paykeeper.ru/info/settings/token/');
+        curl_setopt($curl,CURLOPT_URL,$this->paykeeper_token_url);
         curl_setopt($curl,CURLOPT_CUSTOMREQUEST,'GET');
         curl_setopt($curl,CURLOPT_HTTPHEADER,$headers);
         curl_setopt($curl,CURLOPT_HEADER,false);
